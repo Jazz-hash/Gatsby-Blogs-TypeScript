@@ -4,6 +4,7 @@ import Layout from '../components/layout';
 import SEO from '../components/seo';
 import ContentfulRichText from '../components/contentfulRichText';
 import { BlogPagesQueryQuery } from '../../types/graphql-types'; // eslint-disable-line import/no-unresolved
+import { any } from 'prop-types';
 
 type Props = {
   data: BlogPagesQueryQuery;
@@ -11,24 +12,21 @@ type Props = {
 
 const BlogPosts: React.FC<Props> = ({ data }: Props) => {
   const documents = data.allContentfulBlogPost.edges
-    .filter(edge => edge.node.body)
-    .map(edge => {
-      const { id, title } = edge.node;
-      const { json } = edge.node.body || { json: {} };
-      return { id, title, json };
+    .filter((edge: any) => edge.node.description)
+    .map((edge: any) => {
+      const { id, title, description } = edge.node;
+      return { id, title, description };
     });
   return (
     <Layout>
       <SEO title="Blog Posts" />
       <h1>Blog Posts (source: Contentful)</h1>
-      {documents.map(node => {
+      {documents.map((node: any) => {
         return (
           <div key={node.id}>
             <h2 key={`${node.id}-title`}>{node.title}</h2>
-            <ContentfulRichText
-              document={node.json}
-              key={`${node.id}-content`}
-            />
+            {console.log(node.description, node)}
+            <p>{node.description.description}</p>
           </div>
         );
       })}
@@ -45,8 +43,8 @@ export const query = graphql`
           id
           title
           updatedAt
-          body {
-            json
+          description {
+            description
           }
         }
       }
